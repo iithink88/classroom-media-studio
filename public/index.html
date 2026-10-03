@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>课堂素材生成器 · AIGC 帮我讲家乡</title>
+<style>
+:root{
+  --ink:#2E3A47; --ink2:#5A6875; --ink3:#8A94A0;
+  --acc:#E8873C; --acc2:#F2A75C; --blue:#185FA5; --lblue:#E6F1FB;
+  --line:#E4E9EF; --bg:#F4F6F8; --card:#FFFFFF;
+  --r:16px; --ok:#2F8F5F; --bad:#C03A2B;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 40px}
+
+/* ── 顶部 ── */
+header{background:#fff;border-bottom:3px solid var(--acc);border-radius:0 0 var(--r) var(--r);
+  box-shadow:0 1px 3px rgba(16,24,40,.05);margin-bottom:18px}
+.hd{max-width:1080px;margin:0 auto;padding:18px 16px 16px}
+.badge{display:inline-block;background:var(--lblue);color:var(--blue);font-size:12px;
+  padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+h1{margin:8px 0 4px;font-size:23px;font-weight:700;letter-spacing:.5px}
+.sub{margin:0;color:var(--ink2);font-size:13.5px}
+
+/* ── 布局 ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.03)}
+.step{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px;font-weight:700}
+.step .no{width:21px;height:21px;border-radius:50%;background:var(--acc);color:#fff;
+  font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.step + .step{margin-top:20px}
+.blk{margin-bottom:14px}
+
+/* ── 输入 ── */
+textarea{width:100%;min-height:104px;border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;font:inherit;font-size:16px;color:var(--ink);background:#FCFDFE;resize:vertical}
+textarea:focus{outline:none;border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(232,135,60,.12)}
+.ph{color:var(--ink3);font-size:13.5px}
+.rowbt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+button{cursor:pointer;font:inherit;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:600;
+  border:1px solid var(--line);background:#fff;color:var(--ink);transition:.15s}
+button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btn-ai{border-color:var(--lblue);background:var(--lblue);color:var(--blue)}
+.btn-ai:hover:not(:disabled){background:#D6E7F8;border-color:var(--blue);color:var(--blue)}
+.tipmsg{font-size:12.5px;color:var(--ink2);flex:1;min-width:180px}
+.tipmsg.warn{color:var(--bad)}
+
+/* ── chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line);background:#fff;color:var(--ink2);
+  border-radius:999px;padding:6px 13px;font-size:13px;font-weight:500}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+
+/* ── tabs ── */
+.tabs{display:flex;gap:8px;background:#F1F4F7;border-radius:12px;padding:4px;margin-bottom:12px}
+.tabs button{flex:1;border:none;background:transparent;padding:9px;border-radius:9px;color:var(--ink2)}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.08)}
+
+.field{margin-top:12px}
+.field .lb{font-size:12.5px;color:var(--ink3);margin-bottom:6px;display:block}
+
+/* ── 滑块 ── */
+.slider{width:100%;accent-color:var(--acc);margin:4px 0}
+.durnum{font-size:13px;color:var(--ink2)}
+.durnum b{color:var(--acc);font-size:16px}
+.hintbox{background:#FBF7F2;border:1px dashed var(--acc2);border-radius:10px;
+  padding:8px 11px;font-size:12.5px;color:#8A5A22;margin-top:10px}
+
+/* ── 主按钮 ── */
+.btn-go{width:100%;margin-top:16px;padding:13px;border:none;border-radius:12px;
+  background:var(--ink);color:#fff;font-size:16px;font-weight:700;letter-spacing:1px}
+.btn-go:hover:not(:disabled){background:#1D2833}
+.btn-go:disabled{background:#98A2AE}
+
+/* ── 状态 ── */
+.status{margin-top:12px;font-size:13px;color:var(--ink2);min-height:20px;text-align:center}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);
+  margin-right:6px;animation:bl 1s infinite}
+@keyframes bl{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* ── 结果 ── */
+.viewer{border:1px dashed var(--line);border-radius:12px;background:#FBFCFD;
+  min-height:230px;display:flex;align-items:center;justify-content:center;
+  color:var(--ink3);font-size:13.5px;text-align:center;padding:18px}
+.viewer img,.viewer video{width:100%;max-width:100%;border-radius:10px;display:block;
+  background:#000;max-height:420px;object-fit:contain}
+.viewer video{background:#000}
+.meta{margin-top:10px;font-size:12.5px;color:var(--ink2);word-break:break-all}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.acts a{display:inline-flex;align-items:center;text-decoration:none}
+.acts .btn-dl{background:var(--blue);border-color:var(--blue);color:#fff}
+.acts .btn-dl:hover{background:#0F4F8C;border-color:#0F4F8C;color:#fff}
+.promptbox{margin-top:12px;background:#F8FAFB;border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto}
+.msgbox{margin-top:12px;border-radius:10px;padding:10px 12px;font-size:13px}
+.msgbox.bad{background:#FDF0EE;border:1px solid #F0C4BD;color:var(--bad)}
+.msgbox.good{background:#EDF7F1;border:1px solid #BFE3CE;color:#1F7350}
+
+/* ── 页脚须知 ── */
+.notice{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 18px;font-size:12.5px;color:var(--ink2)}
+.notice h3{margin:0 0 8px;font-size:14px;color:var(--ink)}
+.notice ul{margin:0;padding-left:18px}
+.notice li{margin:3px 0}
+.notice .line1{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;color:var(--ink3)}
+.counter{font-size:12.5px;color:var(--ink3);text-align:right;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <span class="badge">冀教版《信息科技》七年级 · 第一单元 1.2 · 《AIGC 帮我讲家乡》</span>
+    <h1>课堂素材生成器</h1>
+    <p class="sub">说一句话 → AI 帮你润色提示词 → 生成家乡配图 or 短视频，直接放进你的《家乡介绍》PPT</p>
+    <p class="sub" style="margin-top:6px;color:#6B7280">本工具为一节课专用，接口密钥由老师统一内置，同学们直接打开就能用，不用自己申请。</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- 左：表单 -->
+    <div class="card">
+      <div class="step"><span class="no">1</span>你想做点什么？</div>
+      <div class="blk">
+        <textarea id="idea" class="ph" placeholder="例：画一张我们家乡的老街，青砖灰瓦，傍晚的橙色天光，一个小贩在街口卖糖葫芦，远处有袅袅炊烟……（写错也没关系，AI 会帮你改）"></textarea>
+        <div class="rowbt">
+          <button id="btnAI" class="btn-ai">✨ AI 帮我写提示词</button>
+          <span id="aiTip" class="tipmsg"></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lb">画面风格（和课本课件同一套画风）</label>
+        <div class="chips" id="styleChips"></div>
+      </div>
+
+      <div class="step"><span class="no">2</span>要图片还是要短视频</div>
+      <div class="tabs" id="tabs">
+        <button data-kind="image" class="on">🖼 图片</button>
+        <button data-kind="video">🎬 短视频</button>
+      </div>
+
+      <div id="paneImg">
+        <div class="field">
+          <label class="lb">比例</label>
+          <div class="chips" id="ratioImg"></div>
+        </div>
+      </div>
+
+      <div id="paneVid" style="display:none">
+        <div class="field">
+          <label class="lb">时长：<span class="durnum"><b id="durVal">6</b> 秒（可选 4–12 秒）</span></label>
+          <input class="slider" type="range" id="dur" min="4" max="12" step="1" value="6">
+        </div>
+        <div class="field">
+          <label class="lb">比例</label>
+          <div class="chips" id="ratioVid"></div>
+        </div>
+        <div class="hintbox">短视频固定 720P，生成通常需要 1–3 分钟，请耐心等一下，别关页面。</div>
+      </div>
+
+      <button id="btnGo" class="btn-go">开 始 生 成</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- 右：结果 -->
+    <div class="card">
+      <div class="step"><span class="no">3</span>你的作品</div>
+      <div id="viewer" class="viewer">左边写好想法、点「开始生成」<br>成品会在这里出现</div>
+      <div id="msgbox"></div>
+      <div id="meta"></div>
+      <div id="acts" class="acts"></div>
+      <div id="pbox"></div>
+      <div class="counter" id="counter"></div>
+    </div>
+  </div>
+
+  <div class="notice">
+    <h3>使用须知（请同学们一起遵守）</h3>
+    <ul>
+      <li>内容要<strong>健康向上、弘扬社会主义核心价值观</strong>：家乡风景、传统美食、非遗手艺、四季变化、城乡新貌、校园生活——这些都很好。</li>
+      <li>禁止请求<strong>色情低俗、暴力血腥、违法犯罪、恐怖、自残、校园霸凌、封建迷信、歧视、政治敏感</strong>等内容；系统会自动审核，拦下就得换。</li>
+      <li>不得生成他人肖像、名人形象和受版权保护的角色；画面里<strong>不要出现文字</strong>（投影时才不会闹错别字）。</li>
+      <li>生成的内容要用在你的《家乡介绍》作品里，并按要求在 PPT 中<strong>标注「AI 生成」与提示词</strong>——<strong>AI 帮我写，我替它负责。</strong></li>
+    </ul>
+    <div class="line1">本工具为《AIGC 帮我讲家乡》一课课堂专用，素材由 Agnes 生成模型与 DeepSeek 提示词辅助提供；作品保存在本机「学生作品素材」文件夹。</div>
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+const state = { kind:"image", style:"扁平插画", ratioImg:"16:9", ratioVid:"16:9", prompt:"" };
+
+const STYLES = ["扁平插画","儿童教材插图","国风淡彩","清新写实","手绘线条","线描简笔"];
+const RATIO_IMG = ["16:9","4:3","1:1","9:16"];
+const RATIO_VID = ["16:9","4:3","1:1","9:16","3:4","21:9"];
+
+function chips(el, list, cur, onpick){
+  el.innerHTML = "";
+  list.forEach(v=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (v===cur?" on":"");
+    b.textContent = v;
+    b.onclick = ()=>{ chips(el, list, v, onpick); onpick(v); };
+    el.appendChild(b);
+  });
+}
+chips($("#styleChips"), STYLES, state.style, (v)=>state.style=v);
+chips($("#ratioImg"), RATIO_IMG, state.ratioImg, (v)=>state.ratioImg=v);
+chips($("#ratioVid"), RATIO_VID, state.ratioVid, (v)=>state.ratioVid=v);
+
+$("#tabs").onclick = (e)=>{
+  if(e.target.tagName!=="BUTTON") return;
+  [...$("#tabs").children].forEach(b=>b.classList.toggle("on", b===e.target));
+  state.kind = e.target.dataset.kind;
+  $("#paneImg").style.display = state.kind==="image" ? "" : "none";
+  $("#paneVid").style.display = state.kind==="video" ? "" : "none";
+  $("#viewer").style.display = state.kind==="image" ? "" : "none";
+  $("#status").textContent = "";
+};
+$("#dur").oninput = (e)=>$("#durVal").textContent = e.target.value;
+
+function busy(btn, on, txt){
+  btn.disabled = on;
+  if(on) $("#status").innerHTML = '<span class="dot"></span>' + txt;
+  else $("#status").textContent = "";
+}
+function count(){
+  let n = 1; try{ n = (Number(localStorage.getItem("ks_count")||0)) + 1; localStorage.setItem("ks_count", n);}catch(e){}
+  $("#counter").textContent = "本课第 " + n + " 份作品（记录在浏览器本地）";
+}
+
+$("#btnAI").onclick = async ()=>{
+  const idea = $("#idea").value.trim();
+  if(!idea){ $("#aiTip").textContent = "先写一句话～"; $("#aiTip").classList.add("warn"); return; }
+  $("#aiTip").classList.remove("warn"); $("#aiTip").textContent = "AI 正在写提示词…";
+  $("#btnAI").disabled = true;
+  try{
+    const r = await fetch("/api/ai-assist",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idea, style:state.style, kind:state.kind})});
+    const j = await r.json();
+    if(j.ok === false){
+      $("#aiTip").textContent = j.blocked ? "已拦下：换个说法试试" : j.message;
+      $("#aiTip").classList.add("warn");
+      $("#msgbox").innerHTML = '<div class="msgbox ' + (j.blocked?"bad":"bad") + '">' + (j.message||"") + "</div>";
+      return;
+    }
+    state.prompt = j.prompt;
+    $("#idea").value = j.prompt;
+    $("#aiTip").textContent = j.tip || "已写好，可以点开始生成";
+    $("#msgbox").innerHTML = "";
+  }catch(e){
+    $("#aiTip").textContent = "连不上服务端：" + e.message;
+    $("#aiTip").classList.add("warn");
+  }finally{ $("#btnAI").disabled = false; }
+};
+
+$("#btnGo").onclick = async ()=>{
+  const prompt = state.prompt || $("#idea").value.trim();
+  if(!prompt){ $("#status").textContent = "先写一句话，或直接点「AI 帮我写提示词」"; return; }
+  state.prompt = prompt;
+  $("#viewer").style.display = "none";
+  $("#meta").innerHTML = ""; $("#acts").innerHTML = ""; $("#pbox").innerHTML = "";
+  $("#msgbox").innerHTML = "";
+  busy($("#btnGo"), true, state.kind==="image" ? "正在生成图片（通常 20–60 秒）…" : "正在排短视频分镜，通常需要 1–3 分钟，请别关页面…");
+
+  const lines = ["正在排分镜…","正在训练画面…","快好了，正在上色…","正在导出 720P 视频…"];
+  let t=0; const timer = setInterval(()=>{ t++; $("#status").innerHTML = '<span class="dot"></span>' + lines[t % lines.length]; }, 12000);
+
+  try{
+    const r = await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt, kind:state.kind, ratio: state.kind==="video"?state.ratioVid:state.ratioImg, duration: Number($("#dur").value)})});
+    const j = await r.json();
+    if(j.ok === false){
+      $("#msgbox").innerHTML = '<div class="msgbox bad">' + (j.message||"生成失败") + "</div>";
+      $("#viewer").style.display = "";
+      $("#viewer").textContent = "这一张没成，改改主题再试～";
+      return;
+    }
+    const f = j.files && j.files[0];
+    const ext = (f||"").split(".").pop();
+    const isVid = j.kind === "video";
+    $("#viewer").style.display = "block";
+    $("#viewer").innerHTML = isVid
+      ? '<video src="'+f+'" controls autoplay loop playsinline></video>'
+      : '<img src="'+f+'" alt="生成的素材">';
+    const name = "家乡素材_"+new Date().toISOString().slice(0,19).replace(/[-:T]/g,"")+"."+ext;
+    $("#meta").innerHTML = (j.kind==="video" ? ("短视频 "+j.duration+" 秒 · 固定 720P · 生成序号 "+j.videoId) : ("图片 · 生成序号 "+(j.model||"")))
+      + "<br>本机路径：学生作品素材/" + (f||"").split("/").pop();
+    $("#acts").innerHTML = '<a class="chip btn-dl" style="text-decoration:none" href="'+f+'" download="'+name+'">⬇ 下载到本地</a>'
+      + '<button id="cp">复制提示词</button>'
+      + '<a class="chip" target="_blank" href="'+f+'">在新窗口打开</a>';
+    $("#pbox").innerHTML = '<div class="lb" style="font-size:12.5px;color:#8A94A0;margin-top:8px">AI 用的提示词（交作业时请连同图片一起标注）</div><div class="promptbox">'+prompt+'</div>';
+    $("#cp") && ($("#cp").onclick = ()=>{ navigator.clipboard.writeText(prompt); $("#cp").textContent="已复制✓"; });
+    if(j.saveErrors && j.saveErrors.length) $("#meta").innerHTML += "<br><span style='color:#C03A2B'>保存提醒："+j.saveErrors.join("；")+"</span>";
+    $("#msgbox").innerHTML = '<div class="msgbox good">✓ 完成！记得在 PPT 里标注「AI 生成」。</div>';
+    count();
+  }catch(e){
+    $("#msgbox").innerHTML = '<div class="msgbox bad">连接中断：'+e.message+'（可能是老师的服务停了）</div>';
+  }finally{ clearInterval(timer); busy($("#btnGo"), false); }
+};
+
+/* 启动自检 */
+fetch("/api/health").then(r=>r.json()).then(j=>{
+  if(!j.agnesReady || !j.deepseekReady){
+    $("#status").innerHTML = '<span style="color:#C03A2B">老师还没把 key 配好（服务端状态：Agnes '+(j.agnesReady?"✔":"✘")+' / DeepSeek '+(j.deepseekReady?"✔":"✘")+'），请找老师。</span>';
+  }
+});
+</script>
+</body>
+</html>
