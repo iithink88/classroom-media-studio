@@ -1,0 +1,12 @@
+{
+  "agnesKey": "",
+  "deepseekKey": "",
+  "port": 8788,
+  "pythonPath": "",
+
+  "_说明": "这个文件只在本机用，别发到群里。两个 key 都留空时，服务会提示你去填：① 直接填进这里的两个引号中间；② 或者写进环境变量 AGNES_API_KEY / DEEPSEEK_API_KEY。填完关掉黑窗口重开一次就生效。",
+  "_agnesKey": "Agnes（文生图/文生视频）API Key。申请地址见 SKILL.md 第 1 步。只填 sk- 开头那一串，不要把后台自带的那串前缀一起粘进来。",
+  "_deepseekKey": "DeepSeek（帮学生把中文原话改写英文提示词）API Key，同样是 sk- 开头。不填也能用，只是学生要自己写英文提示词。",
+  "_port": "默认 8788。被别的软件占了会自动往后换号（8789、8790…），窗口里会写清楚。",
+  "_pythonPath": "留空 = 自动找系统里的 python3 / python。Windows 上如果报错找不到解释器，就写 python.exe 的完整路径，例如 C:\\Python311\\python.exe"
+}
