@@ -1,0 +1,18 @@
+# 永远不要提交密钥文件
+config.local.json
+config.*.local.json
+.env
+*.key
+DeepSeek的Key*.txt
+密码.txt
+
+# 学生作品 / 运行产物
+学生作品素材/
+启动验证日志.txt
+*.log
+node_modules/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+__pycache__/
